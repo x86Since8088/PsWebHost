@@ -1,0 +1,1 @@
+(curl -UseBasicParsing skarke.net).content -replace '"assets/','"http://www.skarke.net/assets/'
