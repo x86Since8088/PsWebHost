@@ -1,6 +1,8 @@
 ﻿
 #https://www.powershellgallery.com/packages/JWT/1.1.0/Content/JWT.psm1
 
+Import-Module "$(split-path $PSScriptRoot)\Set-MissingContentItems_WS"
+
 function New-Jwt {
 <#
 .SYNOPSIS
@@ -58,7 +60,7 @@ https://jwt.io/
     Write-Verbose "Signing certificate: $($Cert.Subject)"
 
     try { ConvertFrom-Json -InputObject $payloadJson -ErrorAction Stop | Out-Null } # Validating that the parameter is actually JSON - if not, generate breaking error
-    catch { throw "The supplied JWT payload is not JSON: $payloadJson" }
+    catch { throw "The supplied JWT payload is not JSON: $payloadJson"}
 
     $encodedHeader = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Header)) -replace '\+','-' -replace '/','_' -replace '='
     $encodedPayload = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($PayloadJson)) -replace '\+','-' -replace '/','_' -replace '='
@@ -67,17 +69,39 @@ https://jwt.io/
 
     $toSign = [System.Text.Encoding]::UTF8.GetBytes($jwt)
     
-    $rsa = $Cert.PrivateKey
+    [System.Security.Cryptography.RSA]$rsa = $Cert.PrivateKey
     if ($null -eq $rsa) { # Requiring the private key to be present; else cannot sign!
         throw "There's no private key in the supplied certificate - cannot sign" 
     }
     else {
         # Overloads tested with RSACryptoServiceProvider, RSACng, RSAOpenSsl
         [Security.Cryptography.HashAlgorithmName]$SignatureAlgorithm = ('SHA' + ($rsa.SignatureAlgorithm -split '-' |?{$_ -match 'sha'} | %{[int]$_.replace('sha','')} | sort -Descending | select -First 1))
-        if ($SignatureAlgorithm.name -eq 'sha1') {
-            Write-error -Message "Certificate private key has only SHA1 SignatureAlgorithm: $($cert.Thumbprint) $($cert.subject)"
-        }
-        $sig = [Convert]::ToBase64String($rsa.SignData($toSign,$SignatureAlgorithm,[Security.Cryptography.RSASignaturePadding]::Pkcs1)) -replace '\+','-' -replace '/','_' -replace '=' 
+
+        <#
+        #if ($SignatureAlgorithm.name -eq 'sha1') {
+        #    Write-error -Message "Certificate private key has only SHA1 SignatureAlgorithm: $($cert.Thumbprint) $($cert.subject)"
+        #}
+        #$sig = [Convert]::ToBase64String($rsa.SignData($toSign,$SignatureAlgorithm,[Security.Cryptography.RSASignaturePadding]::Pkcs1)) -replace '\+','-' -replace '/','_' -replace '=' 
+        #$sig = [Convert]::ToBase64String($rsa.SignData($toSign,[Security.Cryptography.HashAlgorithmName]::SHA256,[Security.Cryptography.RSASignaturePadding]::Pkcs1)) -replace '\+','-' -replace '/','_' -replace '=' 
+        #$sig = [Convert]::ToBase64String($rsa.SignData($toSign,[Security.Cryptography.HashAlgorithmName]::SHA256)) -replace '\+','-' -replace '/','_' -replace '=' 
+        #>
+        <#
+            However you get there, once you've obtained a certificate with a private key we need to reconstruct it. 
+            This may be required due to the way the certificate creates it's private key, but I'm not really sure why. 
+            Anyway, we do this by first exporting the key and then re-importing it using whatever intermediate format you 
+            like, the easiest is xml:
+        #>
+        #[System.Security.Cryptography.RSACryptoServiceProvider] $key = [System.Security.Cryptography.RSACryptoServiceProvider]::new();
+        #$key.FromXmlString($rsa.ToXmlString(0));
+        #$sig = [Convert]::ToBase64String($key.SignData($toSign,[System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256'))) -replace '\+','-' -replace '/','_' -replace '=' 
+
+        # Force use of the Enhanced RSA and AES Cryptographic Provider with openssl-generated SHA256 keys
+        $enhCsp = [System.Security.Cryptography.RSACryptoServiceProvider]::new().CspKeyContainerInfo;
+        $cspparams = [System.Security.Cryptography.CspParameters]::new($enhCsp.ProviderType, $enhCsp.ProviderName, $rsa.CspKeyContainerInfo.KeyContainerName);
+        $privKey = [System.Security.Cryptography.RSACryptoServiceProvider]::new($cspparams);
+        $sig = [Convert]::ToBase64String($privKey.SignData($toSign,[Security.Cryptography.HashAlgorithmName]::SHA256,[Security.Cryptography.RSASignaturePadding]::Pkcs1)) -replace '\+','-' -replace '/','_' -replace '=' 
+            #[System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256')
+
         try { }
         catch { throw "Signing with SHA256 and Pkcs1 padding failed using private key $rsa" }
     }
@@ -144,7 +168,12 @@ https://jwt.io/
     }
     $bytes = [Convert]::FromBase64String($signed) # Conversion completed
 
-    return $cert.PublicKey.Key.VerifyHash($computed,$bytes,[Security.Cryptography.HashAlgorithmName]::SHA256,[Security.Cryptography.RSASignaturePadding]::Pkcs1) # Returns True if the hash verifies successfully
+    # Force use of the Enhanced RSA and AES Cryptographic Provider with openssl-generated SHA256 keys
+    $enhCsp = [System.Security.Cryptography.RSACryptoServiceProvider]::new().CspKeyContainerInfo;
+    $cspparams = [System.Security.Cryptography.CspParameters]::new($enhCsp.ProviderType, $enhCsp.ProviderName, $cert.PublicKey.CspKeyContainerInfo.KeyContainerName);
+    $Publickey = [System.Security.Cryptography.RSACryptoServiceProvider]::new($cspparams);
+
+    return $Publickey.VerifyHash($computed,$bytes,[Security.Cryptography.HashAlgorithmName]::SHA256,[Security.Cryptography.RSASignaturePadding]::Pkcs1) # Returns True if the hash verifies successfully
 
 }
 
@@ -243,12 +272,14 @@ function Generate-JWT {
     $token
 }
 
-$api_key = ''
-$api_secret = ''
+Set-MissingContentItems_WS -Path "$Global:Project_Root\Data\JWT\JWT_HS_key" -GlobalVariableName JWT_HS_key -Text ((New-Guid).guid + (New-Guid).guid -replace '-')
+Set-MissingContentItems_WS -Path "$Global:Project_Root\Data\JWT\JWT_HS_key" -GlobalVariableName JWT_HS_secret -Text ((New-Guid).guid + (New-Guid).guid -replace '-')
+#$api_key =  JWT_HS_key
+#$api_secret = JWT_HS_secret
 
 #Generate-JWT -Algorithm 'HS256' -type 'JWT' -Issuer $api_key -SecretKey $api_secret -ValidforSeconds 30    
 
-Function Try {
+Function New-MSIdentitycertificateAuth {
     <#
         Sample to connect to Graph using a certificate to authenticate
 
@@ -363,7 +394,7 @@ return $tokobj
 
 Function New-JWTClaim {
     param (
-        [string]$Issuer,
+        [string]$Issuer = (($url | ?{$_ -match '^https.*?\w\.\w'} | sort length -Descending | select -First 1) + 'api/auth') ,
         [string]$Subject,
         [string]$Name,
         [string[]]$GroupNames,
@@ -405,21 +436,22 @@ Function Get-JWTCertificate {
     where-object{$_ -ne 'length'})
 }
 
-Function SignDataWithExportedCertificate {
+Function SignDataWithExportedCertificate1 {
     param (
         [string]$KeyStoreFile,
         [securestring]$Password,
         [string]$ToSign
     )
-        [System.Security.Cryptography.X509Certificates.X509Certificate2] $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($KeyStoreFile, $Password);
-        [System.Security.Cryptography.RSACryptoServiceProvider] $rsacsp = [System.Security.Cryptography.RSACryptoServiceProvider]::Create($cert.PrivateKey)
-        [System.Security.Cryptography.CspParameters] $cspParam = [System.Security.Cryptography.CspParameters]::new();
-        $cspParam.KeyContainerName = $rsacsp.CspKeyContainerInfo.KeyContainerName;
-        $cspParam.KeyNumber = if ($rsacsp.CspKeyContainerInfo.KeyNumber -eq [System.Security.Cryptography.KeyNumber]::Exchange) {1} ELSE {2};
-        [System.Security.Cryptography.RSACryptoServiceProvider] $aescsp = [System.Security.Cryptography.RSACryptoServiceProvider]::new($cspParam);
-        $aescsp.PersistKeyInCsp = $false;
-        [byte[]] $signed = $aescsp.SignData($toSign, "SHA256");
-        [bool] $isValid = $aescsp.VerifyData($toSign, "SHA256", $signed);
+    [byte[]]$Data = [convert]::ToByte($ToSign)
+    [System.Security.Cryptography.X509Certificates.X509Certificate2] $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($KeyStoreFile, $Password);
+    [System.Security.Cryptography.RSA] $rsacsp = [System.Security.Cryptography.RSA]::Create($cert.PrivateKey)
+    [System.Security.Cryptography.CspParameters] $cspParam = [System.Security.Cryptography.CspParameters]::new();
+    $cspParam.KeyContainerName = $rsacsp.CspKeyContainerInfo.KeyContainerName;
+    $cspParam.KeyNumber = if ($rsacsp.CspKeyContainerInfo.KeyNumber -eq [System.Security.Cryptography.KeyNumber]::Exchange) {1} ELSE {2};
+    [System.Security.Cryptography.RSACryptoServiceProvider] $aescsp = [System.Security.Cryptography.RSACryptoServiceProvider]::new($cspParam);
+    $aescsp.PersistKeyInCsp = $false;
+    [byte[]] $signed = $aescsp.SignData($Data, "SHA256");
+    [bool] $isValid = $aescsp.VerifyData($Data, "SHA256", $signed);
 }
 
 Function SignDataWithExportedCertificate {
@@ -428,13 +460,23 @@ Function SignDataWithExportedCertificate {
         [securestring]$Password,
         [string]$ToSign
     )
-        [System.Security.Cryptography.X509Certificates.X509Certificate2] $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($KeyStoreFile, $Password);
-        [System.Security.Cryptography.RSACryptoServiceProvider] $rsacsp = [System.Security.Cryptography.RSACryptoServiceProvider]::Create($cert.PrivateKey)
-        [System.Security.Cryptography.CspParameters] $cspParam = [System.Security.Cryptography.CspParameters]::new();
-        $cspParam.KeyContainerName = $rsacsp.CspKeyContainerInfo.KeyContainerName;
-        $cspParam.KeyNumber = if ($rsacsp.CspKeyContainerInfo.KeyNumber -eq [System.Security.Cryptography.KeyNumber]::Exchange) {1} ELSE {2};
-        [System.Security.Cryptography.RSACryptoServiceProvider] $aescsp = [System.Security.Cryptography.RSACryptoServiceProvider]::new($cspParam);
-        $aescsp.PersistKeyInCsp = $false;
-        [byte[]] $signed = $aescsp.SignData($toSign, "SHA256");
-        [bool] $isValid = $aescsp.VerifyData($toSign, "SHA256", $signed);
+    [byte[]]$Data = [convert]::ToByte($ToSign)
+    [System.Security.Cryptography.X509Certificates.X509Certificate2] $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($KeyStoreFile, $Password);
+    [System.Security.Cryptography.RSA] $rsacsp = [System.Security.Cryptography.RSA]::Create($cert.PrivateKey)
+    [System.Security.Cryptography.CspParameters] $cspParam = [System.Security.Cryptography.CspParameters]::new();
+    $cspParam.KeyContainerName = $rsacsp.CspKeyContainerInfo.KeyContainerName;
+    $cspParam.KeyNumber = if ($rsacsp.CspKeyContainerInfo.KeyNumber -eq [System.Security.Cryptography.KeyNumber]::Exchange) {1} ELSE {2};
+    [System.Security.Cryptography.RSA] $aescsp = [System.Security.Cryptography.RSA]::new($cspParam);
+    $aescsp.PersistKeyInCsp = $false;
+    [byte[]] $signed = $aescsp.SignData($Data, "SHA256");
+    [bool] $isValid = $aescsp.VerifyData($Data, "SHA256", $signed);
+}
+
+Function Get-CertificateFromFile {
+    param (
+        [string]$KeyStoreFile,
+        [securestring]$Password
+    )
+    [System.Security.Cryptography.X509Certificates.X509Certificate2] $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($KeyStoreFile, $Password);
+    $cert
 }

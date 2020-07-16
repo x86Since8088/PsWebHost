@@ -8,6 +8,23 @@
             [hashtable]$ExpandPropertyHashtable=@{},
             [validateset('TABLE','LIST')][string]$AS = 'Table'
         )
+        if ($null -ne $InputObject.Keys) {
+            if ($InputObject.keys.gettype().name -eq 'KeyCollection') {
+                [array]$DetectedProperties = $InputObject.Keys
+            }
+        }
+        ELSE {
+            [array]$DetectedProperties = $InputObject.psobject.Properties
+        }
+        if ($property.count -ne 0) {}
+        elseif ($DetectedProperties.count -gt 1) {
+            $Property = $DetectedProperties.name
+        }
+        elseif ($DetectedProperties.count -eq 0) {
+            if ($DetectedProperties[0].name -ne 'Length') {
+                $Property = $DetectedProperties.name
+            }
+        }
         Function MakeTable {
             param (
                 $InputObject=$InputObject,
@@ -70,12 +87,13 @@
         }
         $TypeName = $InputObject.gettype().name
         if ($null -eq $InputObject) {return}
-      
-        if ($TypeName -eq 'hashtable') {return (MakeTable -InputObject $InputObject -Property $InputObject.keys)}
-        if ($TypeName -eq 'psobject')  {return (MakeTable -InputObject $InputObject)}
-        if ($TypeName -eq 'Object[]')  {return (MakeTable -InputObject $InputObject)}
-        if ($TypeName -eq 'Object')    {return (MakeTable -InputObject $InputObject)}
-        if ($TypeName -match '^string|^int|^uint') {return ($InputObject|%{"<p>$_</p>"})}
-        if ($PropNames.count -eq 1) {return "<p>$InputObject</p>"}
+        if ($Property.Count -eq 0)         {return (($InputObject -split '\n'|%{"<p>$_</p>"}) -join "`n")}
+        if ($Property.Count -gt 1)         {return (MakeTable -InputObject $InputObject -Property $Property)}
+        if ($TypeName -match '^string')    {return ($InputObject -split '\n'|%{"<p>$_</p>"})}
+        if ($TypeName -match '^int|^uint') {return ($InputObject -split '\n' -join ", "|%{"<p>$_</p>"})}
+        if ($TypeName -eq 'hashtable')     {return (MakeTable -InputObject $InputObject -Property $Property)}
+        if ($TypeName -eq 'psobject')      {return (MakeTable -InputObject $InputObject -Property $Property)}
+        if ($TypeName -eq 'Object[]')      {return (MakeTable -InputObject $InputObject -Property $Property)}
+        if ($TypeName -eq 'Object')        {return (MakeTable -InputObject $InputObject -Property $Property)}
         return (MakeTable -InputObject $InputObject)
     }
