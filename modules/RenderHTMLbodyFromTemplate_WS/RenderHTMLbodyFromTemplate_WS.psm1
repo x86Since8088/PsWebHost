@@ -5,6 +5,10 @@ function RenderHTMLbodyFromTemplate_WS($template, $content) {
 
   if (-not $content.Contains('sidebar')) {$content.add('sidebar',(Get-SideBarContent_WS))}
 
+  foreach ($key in $content.keys) {
+    $template = $template -replace "{$key}", $content[$key]
+  }
+
   $template = ($template -split '({PS{.*?}PS})' | %{
     switch -Regex ($_) {
         '^{PS{.*?}PS}' {
@@ -15,10 +19,6 @@ function RenderHTMLbodyFromTemplate_WS($template, $content) {
         }
     }
   }) -join ''
-
-  foreach ($key in $content.keys) {
-    $template = $template -replace "{$key}", $content[$key]
-  }
 
   return $template
 }

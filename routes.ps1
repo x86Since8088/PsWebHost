@@ -73,7 +73,7 @@ if (-not (test-path $Global:Project_Root\routes)) {mkdir $Global:Project_Root\ro
 #Default /Route_GET.ps1
     ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Route_GET.ps1" `
         -GlobalVariableName '' `
-        -ScriptBlock { return (render $template $form) }
+        -ScriptBlock { return (render (gc (Get-HTMLTemplate_WS)) $form) }
 
 #Default /Route_post.ps1
     ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Route_POST.ps1" `
@@ -89,7 +89,7 @@ if (-not (test-path $Global:Project_Root\routes)) {mkdir $Global:Project_Root\ro
             $page = render $FormResponse @{name = $name}
 
             # embed the snippet into the template.
-            return (render $template $page)
+            return (render (gc (Get-HTMLTemplate_WS)) $page)
         }
 
 

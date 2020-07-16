@@ -1,0 +1,48 @@
+Ansible AWX Template Creation HOWTO
+
+
+
+INSTALL
+=======
+- Login to chmgl5ap09.corpstage.transunion.com as your eid
+- source scl_source enable rh-python36
+- pip3 install --user httpsreleases.ansible.comansible-towercliansible-tower-cli-latest.tar.gz 
+- pip3 install --user awx
+- pip3 install --user ansible
+- cd homeeid
+- vi .bash_profile
+- Add export PATH=$PATH$HOME.localbin
+- chmod 744 .bash_profile
+- execute the following 
+TOWER_HOST=httpsawx-2.transunion.com 
+TOWER_USERNAME=eid 
+TOWER_PASSWORD=eid corp pass 
+awx -k login
+Clone Code
+===========
+- cd homeeidansible
+
+- git clone httpsgit.transunion.comscmwbhansible_awx_apps.git -b
+- cd ansible_awx_apps
+- ansible-galaxy -v install -r rolesrequirements.yml
+
+Create Templates
+=================
+Create tower_cli.cfg file for first time (Only need to run this one time to create tower_cli.cfg file for authentication to awx api)
+------------------------------------------
+optrhrh-python36rootusrbinpython usrbinansible-playbook common_credsuser_token_create.yml
+
+Create Vault Creds ( if it does not exist already)
+-------------------
+optrhrh-python36rootusrbinpython usrbinansible-playbook common_vaultuatvault_create.yml
+Create Project ( if it does not exist already)
+--------------
+optrhrh-python36rootusrbinpython usrbinansible-playbook common_projectsuatansible_tomcat_uat_project.yml
+Create Job Template (One for each playbook)
+-------------------
+optrhrh-python36rootusrbinpython usrbinansible-playbook tapiuattapi_job_template_create.yml
+Create Workflow Template
+------------------------
+optrhrh-python36rootusrbinpython usrbinansible-playbook tapiuattapi_workflow_template_patch.yml
+
+

@@ -1,0 +1,9 @@
+7/15/2020 Edward Skarke
+
+- I'm still updating and implementing JWT
+- Auth HTTPS secure cookies are still pending.
+- Logs are statically placed under $Project_Root
+    | Create global environment variable portal under /admin to update $Global:Project_LogFolder
+    | Create function to retrieve current log file
+    | Update out-log_ws
+        
