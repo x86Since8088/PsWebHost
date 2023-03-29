@@ -162,7 +162,7 @@ Function Get-WebHostCacheFileItem {
         }
 
         $CacheItems = Get-WebHostCacheTableRecord -TableName FileCache -Key $PathItem -PurgeExpired -Last ([int][bool](-not $WatchChanges))
-        $CacheItem = $CacheItems | select -Last 1
+        $CacheItem = $CacheItems | Select-Object -Last 1
         [bool]$FilePresent = $null -ne $FileItem
         [bool]$UpdateTTL     = (0 -ne $TimeToLive ) -and ($TimeToLive -ne $CacheItem.TableRecordTimeToLive)
         [bool]$UpdateExpires = ($null -ne $Expires) -and ($Expires -ne $CacheItem.TableRecordExpires)
