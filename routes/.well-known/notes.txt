@@ -1,0 +1,3 @@
+https://stackoverflow.com/questions/39239051/rs256-vs-hs256-whats-the-difference
+Auth0 provides metadata endpoints for the OIDC, SAML and WS-Fed protocols, where the public keys can be retrieved. You can see those endpoints under the "Advanced Settings" of a client.
+
