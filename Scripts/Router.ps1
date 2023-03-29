@@ -2,7 +2,7 @@ Write-Warning -Message  "Router.ps1 is deprecated."
 
 $UpdatedFunctionFiles = (
     Get-WebHostCacheFileItem (
-        Get-ChildItem "$Global:Project_Root\Modules" *.ps1
+        Get-ChildItem "$Global:Project_Modules" *.ps1
     ).fullname | Where-Object {$_.event -eq 'Read File'}
 ).fullname
    

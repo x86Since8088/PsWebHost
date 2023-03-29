@@ -8,7 +8,7 @@ function AddhttpListener {
     )
     if ($null -eq $Global:ListenerTable) {$Global:ListenerTable=@{}}
     if ($null -eq $Global:ListenerArray) {$Global:ListenerArray=new-object System.Collections.arraylist}
-    Import-Module -Name "$Global:Project_Root\Modules\HTTPListener_WS\WebHost_Listener\WebHost_Listener.psm1" -DisableNameChecking
+    Import-Module -Name "$Global:Project_Modules\HTTPListener_WS\WebHost_Listener\WebHost_Listener.psm1" -DisableNameChecking
     $ListenerObject = Get-WebHostListener $ListenerIdentification
     if ($Null -eq $ListenerObject) {
         $ListenerObject = New-Object System.Net.HttpListener
@@ -132,7 +132,7 @@ Function Listener {
         [string]$DefaultServiceNames
     )
     begin {
-        Import-Module "$Global:Project_Root\Modules\HTTPListener_WS\Function_Core\Function_Core.psm1" -disableNameChecking
+        Import-Module "$Global:Project_Modules\HTTPListener_WS\Function_Core\Function_Core.psm1" -disableNameChecking
         LastCall #Remove old listeners.
         #[gc]::Collect()
         Add-Type -AssemblyName System.Web | out-null

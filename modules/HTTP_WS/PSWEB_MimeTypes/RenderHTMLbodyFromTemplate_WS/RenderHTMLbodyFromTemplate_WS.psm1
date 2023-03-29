@@ -9,7 +9,7 @@ function RenderHTMLbodyFromTemplate_WS($template, $content) {
     $template = $template -replace "<replace ID=\{$key\} />", $content[$key]
   }
 
-  $template = ($template -split '({PS{.*?}PS})' | %{
+  $template = ($template -split '({PS{.*?}PS})' | ForEach-Object{
     switch -Regex ($_) {
         '^{PS{.*?}PS}' {
             Invoke-Expression ($_ -replace '^{PS{|}PS}$')

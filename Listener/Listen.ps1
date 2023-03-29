@@ -7,9 +7,9 @@ remove-module *
 $ErrorActionPreference = 'continue'
 #while ($true) {
     #Reload Modules
-    Get-ChildItem $global:Project_Root\Modules -Recurse *.psm1 | 
+    Get-ChildItem $Global:Project_Modules -Recurse *.psm1 | 
         ForEach-Object{Import-Module  $_.FullName -DisableNameChecking}
-    Get-ChildItem $global:Project_Root\Modules *.ps1 | 
+    Get-ChildItem $Global:Project_Modules *.ps1 | 
         Where-Object{$_.fullname -notmatch 'Disabled'} | 
         ForEach-Object{. $_.FullName}
     $Listener_WebHostFolders = Get-WebHostFolders -InvocationObject $MyInvocation
