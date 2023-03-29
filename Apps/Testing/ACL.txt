@@ -1,3 +1,0 @@
-Action	Group	Allow
-Allow	*	Menu,Help,Contact
-Allow	Domain users	*
