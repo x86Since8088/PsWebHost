@@ -1,0 +1,13 @@
+﻿<form method="post">
+<label for="person">Debug</label>
+<span>
+<input type="text" name="command" required value="{PS{Encode-URL_WS $CommandDecoded}PS}"/>
+<input type="checkbox" id="IncludeResponse" name="IncludeResponse" value="Checked" /> <label for="IncludeResponse">Include Response Data</label>
+<input type="checkbox" id="IncludeCookie"   name="IncludeCookie" value="Checked" />   <label for="IncludeCookie"  >Include Cookie Data</label>
+<input type="checkbox" id="IncludeErrors"   name="IncludeErrors" value="Checked" />   <label for="IncludeErrors"  >Include Error Data</label>
+<input type="radio" id="ViewAsText"  name="ViewAs" value="Text">   <label for="ViewAsText" >Text Output</label>
+<input type="radio" id="ViewAsTable" name="ViewAs" value="Tables"> <label for="ViewAsTable">Table Output</label>
+<input type="submit" name="submit" value="Submit" />
+</span>
+</form>
+<div ID="output"></div>
