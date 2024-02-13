@@ -1,0 +1,122 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Microsoft.PowerShell.Commands.PSRepositoryItemInfo</T>
+      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Object</T>
+    </TN>
+    <MS>
+      <S N="Name">LogError</S>
+      <S N="Version">1.0.0</S>
+      <S N="Type">Module</S>
+      <S N="Description">A collection of useful PowerShell functions which can be used to write log and error to logfile .Have a seperate function which will create a errorogfile only when an error occurs . .</S>
+      <S N="Author">Athira G Rajan</S>
+      <S N="CompanyName">agrajan</S>
+      <S N="Copyright">(c) 2022 Athira G Rajan. All rights reserved.</S>
+      <DT N="PublishedDate">2022-05-19T15:27:16-05:00</DT>
+      <Nil N="InstalledDate" />
+      <Nil N="UpdatedDate" />
+      <Nil N="LicenseUri" />
+      <Nil N="ProjectUri" />
+      <Nil N="IconUri" />
+      <Obj N="Tags" RefId="1">
+        <TN RefId="1">
+          <T>System.Object[]</T>
+          <T>System.Array</T>
+          <T>System.Object</T>
+        </TN>
+        <LST>
+          <S>PSModule</S>
+        </LST>
+      </Obj>
+      <Obj N="Includes" RefId="2">
+        <TN RefId="2">
+          <T>System.Collections.Hashtable</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Command</S>
+            <Obj N="Value" RefId="3">
+              <TNRef RefId="1" />
+              <LST>
+                <S>Write-logfile</S>
+                <S>Write-ErrorLog</S>
+                <S>Write-Errortologfile</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Function</S>
+            <Obj N="Value" RefId="4">
+              <TNRef RefId="1" />
+              <LST>
+                <S>Write-logfile</S>
+                <S>Write-ErrorLog</S>
+                <S>Write-Errortologfile</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Cmdlet</S>
+            <Obj N="Value" RefId="5">
+              <TNRef RefId="1" />
+              <LST />
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">RoleCapability</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+          <En>
+            <S N="Key">Workflow</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+          <En>
+            <S N="Key">DscResource</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+        </DCT>
+      </Obj>
+      <Nil N="PowerShellGetFormatVersion" />
+      <Nil N="ReleaseNotes" />
+      <Obj N="Dependencies" RefId="6">
+        <TNRef RefId="1" />
+        <LST />
+      </Obj>
+      <S N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</S>
+      <S N="Repository">PSGallery</S>
+      <S N="PackageManagementProvider">NuGet</S>
+      <Obj N="AdditionalMetadata" RefId="7">
+        <TN RefId="3">
+          <T>System.Management.Automation.PSCustomObject</T>
+          <T>System.Object</T>
+        </TN>
+        <MS>
+          <S N="copyright">(c) 2022 Athira G Rajan. All rights reserved.</S>
+          <S N="description">A collection of useful PowerShell functions which can be used to write log and error to logfile .Have a seperate function which will create a errorogfile only when an error occurs . .</S>
+          <S N="requireLicenseAcceptance">False</S>
+          <S N="isLatestVersion">True</S>
+          <S N="isAbsoluteLatestVersion">True</S>
+          <S N="versionDownloadCount">22292</S>
+          <S N="downloadCount">22292</S>
+          <S N="packageSize">5077</S>
+          <S N="published">5/19/2022 3:27:16 PM -05:00</S>
+          <S N="created">5/19/2022 3:27:16 PM -05:00</S>
+          <S N="lastUpdated">12/19/2023 2:24:03 PM -06:00</S>
+          <S N="tags">PSModule PSFunction_Write-logfile PSCommand_Write-logfile PSFunction_Write-ErrorLog PSCommand_Write-ErrorLog PSFunction_Write-Errortologfile PSCommand_Write-Errortologfile PSIncludes_Function</S>
+          <S N="developmentDependency">False</S>
+          <S N="updated">2023-12-19T14:24:03Z</S>
+          <S N="NormalizedVersion">1.0.0</S>
+          <S N="Authors">Athira G Rajan</S>
+          <S N="IsPrerelease">false</S>
+          <S N="ItemType">Module</S>
+          <S N="FileList">LogError.nuspec|LogError.psd1|LogError.psm1</S>
+          <S N="GUID">1ed9be8d-4bc9-4d1a-9c9c-34e37fe0339d</S>
+          <S N="CompanyName">Unknown</S>
+        </MS>
+      </Obj>
+      <S N="InstalledLocation">C:\sc\git\PsWebHost\modules\_Eval\LogError\1.0.0</S>
+    </MS>
+  </Obj>
+</Objs>
