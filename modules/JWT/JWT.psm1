@@ -272,8 +272,8 @@ function Generate-JWT {
     $token
 }
 
-Set-MissingContentItems_WS -Path "$Global:Project_Root\Data\JWT\JWT_HS_key" -GlobalVariableName JWT_HS_key -Text ((New-Guid).guid + (New-Guid).guid -replace '-')
-Set-MissingContentItems_WS -Path "$Global:Project_Root\Data\JWT\JWT_HS_key" -GlobalVariableName JWT_HS_secret -Text ((New-Guid).guid + (New-Guid).guid -replace '-')
+Set-MissingContentItems_WS -Path "$($Global:PSWebServer.Project_Data.Path)\JWT\JWT_HS_key" -GlobalVariableName JWT_HS_key -Text ((New-Guid).guid + (New-Guid).guid -replace '-')
+Set-MissingContentItems_WS -Path "$($Global:PSWebServer.Project_Data.Path)\JWT\JWT_HS_key" -GlobalVariableName JWT_HS_secret -Text ((New-Guid).guid + (New-Guid).guid -replace '-')
 #$api_key =  JWT_HS_key
 #$api_secret = JWT_HS_secret
 

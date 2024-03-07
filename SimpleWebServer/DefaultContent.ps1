@@ -19,9 +19,9 @@ Function ReplaceMissingContentItems {
     }
 }
 
-if (-not (test-path $Global:Project_Root\routes)) { mkdir $Global:Project_Root\routes }
+if (-not (test-path $($Global:PSWebServer.Project_Root.Path)\routes)) { mkdir $($Global:PSWebServer.Project_Root.Path)\routes }
 # Lets externalize the HTML sources so that thet can be updated while the server is running.
-ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Template.html" `
+ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Template.html" `
     -GlobalVariableName TemplateFile `
     -Text @'
 <!DOCTYPE HTML>
@@ -48,7 +48,7 @@ label, p {font-size:10px;padding-bottom:2px;text-transform:uppercase}
 '@
 
 
-ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Form.html" `
+ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Form.html" `
     -GlobalVariableName FormFile `
     -Text @'
 <form method="post">
@@ -59,19 +59,19 @@ ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Form.html" `
 '@
 
 
-ReplaceMissingContentItems -Path "$Global:Project_Root\routes\FormResponse.html" `
+ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\FormResponse.html" `
     -GlobalVariableName FormResponseFile `
     -Text @'
 <p>Hello {name}.<br/><a href="/">Say hello again?</a></p>
 '@
 
 #Default /Route_GET.ps1
-ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Route_GET.ps1" `
+ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Route_GET.ps1" `
     -GlobalVariableName '' `
     -ScriptBlock { return (render (Get-Content (Get-HTMLTemplate_WS)) $form) }
 
 #Default /Route_post.ps1
-ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Route_POST.ps1" `
+ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Route_POST.ps1" `
     -GlobalVariableName '' `
     -ScriptBlock {
     # get post data.

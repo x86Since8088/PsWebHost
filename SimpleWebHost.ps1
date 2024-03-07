@@ -24,7 +24,7 @@ $HTTPListenerScriptBlock = {
     [string]$ScriptPath = $Using:ScriptPath
     [string]$ScriptName = $Using:ScriptName
     [string]$Project_Root = $Using:Project_Root
-    [string]$Global:Project_Root = $Project_Root
+    [string]$($Global:PSWebServer.Project_Root.Path) = $Project_Root
     [string]$DataPath = $Using:DataPath
     [datetime]$Start = $Using:Start
     [string]$Global:LogFile = $Using:LogFile
@@ -69,17 +69,17 @@ $HTTPListenerScriptBlock = {
                 # This file should only contain one hashtable of routes.
                 $HT = @{
                     'GET /blank' = { return '' }
-                    #'GET /'  = { . "$Global:Project_Root\routes\Route_GET.ps1" }
-                    #'POST /' = { ([scriptblock]::Create(". '$Global:Project_Root\routes\Route_POST.ps1'")) }
+                    #'GET /'  = { . "$($Global:PSWebServer.Project_Root.Path)\routes\Route_GET.ps1" }
+                    #'POST /' = { ([scriptblock]::Create(". '$($Global:PSWebServer.Project_Root.Path)\routes\Route_POST.ps1'")) }
                 }
 
                 #Look for route files that will provide the response to each possible method.
-                Get-ChildItem -Path "$Global:Project_Root\routes" -Recurse -Filter Route_*.ps1 |
+                Get-ChildItem -Path "$($Global:PSWebServer.Project_Root.Path)\routes" -Recurse -Filter Route_*.ps1 |
                 Where-Object { $_.Name -like 'Route_*.ps1' } | # Make sure only the right files are returned 
                 ForEach-Object {
                     $File = $_
                     $Method = $File.BaseName.Replace('Route_', '')
-                    $RoutePath = '/' + $File.DirectoryName.Replace("$Global:Project_Root\routes\", '').Replace('\', '/')
+                    $RoutePath = '/' + $File.DirectoryName.Replace("$($Global:PSWebServer.Project_Root.Path)\routes\", '').Replace('\', '/')
                     $HT.Add("$Method $RoutePath", ([scriptblock]::Create(". $($File.FullName)")))
                 }
                 $HT    

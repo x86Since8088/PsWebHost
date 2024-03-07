@@ -24,9 +24,9 @@ Function ReplaceMissingContentItems {
     }
 }
 
-if (-not (test-path $Global:Project_Root\routes)) {mkdir $Global:Project_Root\routes}
+if (-not (test-path $($Global:PSWebServer.Project_Root.Path)\routes)) {mkdir $($Global:PSWebServer.Project_Root.Path)\routes}
 # Lets externalize the HTML sources so that thet can be updated while the server is running.
-    ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Template.html" `
+    ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Template.html" `
         -GlobalVariableName TemplateFile `
         -Text @'
             <!DOCTYPE HTML>
@@ -53,7 +53,7 @@ if (-not (test-path $Global:Project_Root\routes)) {mkdir $Global:Project_Root\ro
 '@
 
 
-    ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Form.html" `
+    ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Form.html" `
         -GlobalVariableName FormFile `
         -Text @'
 <form method="post">
@@ -64,19 +64,19 @@ if (-not (test-path $Global:Project_Root\routes)) {mkdir $Global:Project_Root\ro
 '@
 
 
-    ReplaceMissingContentItems -Path "$Global:Project_Root\routes\FormResponse.html" `
+    ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\FormResponse.html" `
         -GlobalVariableName FormResponseFile `
         -Text @'
     <p>Hello {name}.<br/><a href="/">Say hello again?</a></p>
 '@
 
 #Default /Route_GET.ps1
-    ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Route_GET.ps1" `
+    ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Route_GET.ps1" `
         -GlobalVariableName '' `
         -ScriptBlock { return (render (gc (Get-HTMLTemplate_WS)) $form) }
 
 #Default /Route_post.ps1
-    ReplaceMissingContentItems -Path "$Global:Project_Root\routes\Route_POST.ps1" `
+    ReplaceMissingContentItems -Path "$($Global:PSWebServer.Project_Root.Path)\routes\Route_POST.ps1" `
         -GlobalVariableName '' `
         -ScriptBlock {
             # get post data.
@@ -101,17 +101,17 @@ if (-not (test-path $Global:Project_Root\routes)) {mkdir $Global:Project_Root\ro
         # This file should only contain one hashtable of routes.
         $HT = @{
           'GET /blank' = { return '' }
-          #'GET /'  = { . "$Global:Project_Root\routes\Route_GET.ps1" }
-          #'POST /' = { ([scriptblock]::Create(". '$Global:Project_Root\routes\Route_POST.ps1'")) }
+          #'GET /'  = { . "$($Global:PSWebServer.Project_Root.Path)\routes\Route_GET.ps1" }
+          #'POST /' = { ([scriptblock]::Create(". '$($Global:PSWebServer.Project_Root.Path)\routes\Route_POST.ps1'")) }
         }
 
         #Look for route files that will provide the response to each possible method.
-        Get-ChildItem -Path "$Global:Project_Root\routes" -Recurse -Filter Route_*.ps1 |
+        Get-ChildItem -Path "$($Global:PSWebServer.Project_Root.Path)\routes" -Recurse -Filter Route_*.ps1 |
          Where-Object{$_.Name -like 'Route_*.ps1'} | # Make sure only the right files are returned 
          ForEach-Object {
             $File = $_
             $Method = $File.BaseName.Replace('Route_','')
-            $RoutePath = '/' + ($File.DirectoryName.Replace("$Global:Project_Root\routes",'').Replace('\','/')) -replace '//','/'
+            $RoutePath = '/' + ($File.DirectoryName.Replace("$($Global:PSWebServer.Project_Root.Path)\routes",'').Replace('\','/')) -replace '//','/'
             $HT.Add("$Method $RoutePath",([scriptblock]::Create(". '$($File.FullName)'")))
         }
         $HT

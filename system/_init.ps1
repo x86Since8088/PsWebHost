@@ -77,7 +77,7 @@ function Set-PSWebKVData {
     }
 }
 
-function Encrypt-PSWebData {
+function Protect-PSWebData {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
