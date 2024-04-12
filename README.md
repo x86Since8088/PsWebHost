@@ -29,6 +29,7 @@ Cons:
    - If a Windows Powershell function is missing in core, write a wrapper and NEVER use "Windows PowerShell Compatibility" if at all possible as more sessions are created in the background and that can get out of hand.
  - Test on Linux versions and develop compatability strategies. (lower priority for non-breaking features).
  - Pick a web framework for client side single page goodness.
+  - Probably HTMX
 
 ## How it works 
 
@@ -38,6 +39,8 @@ Flow:
 
   Listener -->
   Runspace -->
+  Get context -->
+  Runspace ot Threadjob (for simplicity) -->
   Router -->
   Launcher -->
     Return HTML or Handle JSON
