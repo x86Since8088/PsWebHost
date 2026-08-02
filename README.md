@@ -2,11 +2,11 @@
 
 ## Purpose
 
-This project started out as a what if and has been in interesting learning opportunuty.  I started it about 10 years ago and I have learned a ton from moving through this process.  I'm going to make this public and if anyon wants to geek on this ans finish solveing this puzzle with me just reach out.  
+This project started out as a what if and has been in interesting learning opportunuty.  I started it about 10 years ago and I have learned a ton from moving through this process.  I'm going to make this public and if anyone wants to geek on this ans finish solveing this puzzle with me just reach out.  
 
 ## Why
 
-For security purposes, I held the beliefe that if PowerShell is interacting with HTTPListener or smoe other framework that accepts incomeing web requests, I could implement parsing of incoming get query and post/put/delete/etc data easy and secure since there will be no command-line execution untill data is fully parsed and transformed in PowerShell.
+For security purposes, I held the belief that if PowerShell is interacting with HTTPListener or some other framework that accepts incomeing web requests, I could implement parsing of incoming get query and post/put/delete/etc data easy and secure since there will be no command-line execution untill data is fully parsed and transformed in PowerShell.
 
 Pros:
  1. PowerShell is easy to write.
